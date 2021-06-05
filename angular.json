@@ -15,7 +15,7 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "app",
+      "prefix": "kube-controller",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
