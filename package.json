@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "start-kube": "set KUBECONFIG=&& nodemon",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -18,6 +19,13 @@
     "@angular/platform-browser": "~12.0.3",
     "@angular/platform-browser-dynamic": "~12.0.3",
     "@angular/router": "~12.0.3",
+    "@ng-bootstrap/ng-bootstrap": "^9.1.1",
+    "@ngxs/store": "^3.7.2",
+    "axios": "^0.21.1",
+    "bootstrap": "^5.0.1",
+    "bootswatch": "^5.0.1",
+    "cors": "^2.8.5",
+    "json2typescript": "^1.4.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.1.0",
     "zone.js": "~0.11.4"
