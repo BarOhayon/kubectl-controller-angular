@@ -5,7 +5,7 @@ export interface NamespaceDTO { _id: number, name: string, status: string, age: 
 @JsonObject('Namespace')
 export class Namespace {
     @JsonProperty('_id', Number)
-    public id: number;
+    public id: string;
 
     @JsonProperty('name', String)
     public name: string;
@@ -22,7 +22,7 @@ export class Namespace {
         status?: string,
         age?: string,
     ) {
-        this.id = id || 0;
+        this.id = (id || 0).toString();
         this.name = name || 'UNKNOWN';
         this.status = status || 'UNKNOWN';
         this.age = age || 'UNKNOWN';

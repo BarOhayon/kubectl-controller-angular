@@ -1,0 +1,28 @@
+<div *ngIf="(hasPods$ |async); else loading">
+    <H1>Pods</H1>
+    <input class=" form-check-input" type="checkbox" id="flexCheckDefault" [ngModel]="podListService.bool"
+        (ngModelChange)="podListService.setSelected($event)">
+    <label class="form-check-label" for="flexCheckDefault">Auto refresh</label>
+    <table class="table table-hover bs-component">
+        <thead>
+            <th>Name</th>
+            <th>index</th>
+            <th>ready</th>
+            <th>status</th>
+            <th>restarts</th>
+            <th>age</th>
+            <th></th>
+        </thead>
+        <tbody>
+            <tr scope=" row" *ngFor="let pod of (pods$ |async);let i = index;" [ngClass]="getRowClass(pod)"
+                (click)='setSelected(pod)'>
+                <td>{{pod.displayName}}</td>
+                <td>{{pod.index}}</td>
+                <td [ngClass]="getReadyClass(pod.ready)">{{pod.ready}}</td>
+                <td>{{pod.status}}</td>
+                <td>{{pod.restarts}}</td>
+                <td>{{pod.age}}</td>
+            </tr>
+    </table>
+</div>
+<ng-template #loading></ng-template>

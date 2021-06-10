@@ -1,15 +1,21 @@
-<table class="table table-hover bs-component">
-    <thead>
-        <th>name</th>
-        <th>status</th>
-        <th>age</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr *ngFor="let namespace of (namespaces$ |async);let i = index" [class]="getRowClass(namespace)"
-            (click)='setSelected(namespace)'>
-            <td>{{namespace.name}}</td>
-            <td>{{namespace.status}}</td>
-            <td>{{namespace.age}}</td>
-        </tr>
-</table>
+<div>
+    <h1>Namespaces</h1>
+    <input class=" form-check-input" type="checkbox" id="flexCheckDefault" [ngModel]="namespaceListService.bool"
+        (ngModelChange)="namespaceListService.setSelected($event)">
+    <label class="form-check-label" for="flexCheckDefault">Auto refresh</label>
+    <table class="table table-hover bs-component">
+        <thead>
+            <th>name</th>
+            <th>status</th>
+            <th>age</th>
+            <th></th>
+        </thead>
+        <tbody>
+            <tr scope="row" *ngFor="let namespace of (namespaces$ | async);let i = index;"
+                [ngClass]="[getRowClass(namespace) | async]" (click)='setSelected(namespace)'>
+                <td>{{namespace.name}}</td>
+                <td>{{namespace.status}}</td>
+                <td>{{namespace.age}}</td>
+            </tr>
+    </table>
+</div>

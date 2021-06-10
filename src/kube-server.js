@@ -13,8 +13,11 @@ app.get('/namespaces', async (req, res) => {
 });
 
 app.get('/pods', async (req, res) => {
-    let ns = req.query.namespace;
-    let pods = await kubectlService.getPods(ns);
+    let ns = req.query.namespaceName;
+    let extradata = {};
+    extradata.removeNamePrefix = req.query.removeNamePrefix;
+    debugger
+    let pods = await kubectlService.getPods(ns, extradata);
     res.json(pods);
     res.end();
 });
@@ -68,6 +71,6 @@ app.get('/closePortForwarding', async (req, res) => {
     res.json({ status: 'disconnected' });
     res.end();
 });
-
+process.env.KUBECONFIG = ''
 app.listen(port, () => console.log(`kube-server ${port}!`))
 app.use(express.static('public'))

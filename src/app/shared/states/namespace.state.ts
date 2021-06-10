@@ -6,17 +6,18 @@ import { tap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { JsonConvert } from 'json2typescript';
 import { Observable } from 'rxjs';
+import { ClearPods, FetchPods } from '../actions/pod.action';
 
 export interface NamespaceStateModel {
     namespaces: Namespace[];
-    selectedId?: number
+    selectedName?: string
 }
 
 @State<NamespaceStateModel>({
     name: 'Namespace',
     defaults: {
         namespaces: [],
-        selectedId: undefined
+        selectedName: undefined
     }
 })
 @Injectable()
@@ -28,7 +29,7 @@ export class NamespaceState {
         return NamespaceState.jsonConvert.deserializeObject(dto, Namespace);
     }
 
-    constructor(private NamespaceService: KubectlService) { }
+    constructor(private kubectlService: KubectlService) { }
 
     @Selector()
     static namespaces(state: NamespaceStateModel) {
@@ -36,28 +37,28 @@ export class NamespaceState {
     }
 
     @Selector()
-    static selectedId(state: NamespaceStateModel) {
-        return state.selectedId;
+    static selectedName(state: NamespaceStateModel) {
+        return state.selectedName;
     }
 
     @Action(FetchNamespaces)
     fetchNamespaces({ getState, setState }: StateContext<NamespaceStateModel>, action: FetchNamespaces): Observable<any> {
         let state = getState();
-        return this.NamespaceService.getNamespaces().pipe(
+        return this.kubectlService.getNamespaces().pipe(
             tap(dtos => {
                 let namespaces = dtos.map(NamespaceState.deserialize);
-                let selectedId = namespaces.length ? state.selectedId || 0 : undefined;
-                setState({ ...state, namespaces, selectedId })
+                setState({ ...state, namespaces })
 
             })
         )
     }
+
     @Action(SetSelectedNamespace)
-    setSelectedNamespace({ getState, setState }: StateContext<NamespaceStateModel>, action: SetSelectedNamespace): void {
+    setSelectedNamespace({ getState, setState, dispatch }: StateContext<NamespaceStateModel>, action: SetSelectedNamespace): void {
         let state = getState();
-        let newState = { ...state, selectedId: action.selectedNamespace.id }
-        console.log({ state, newState });
-        setState(newState)
+        let selectedName = action.selectedNamespace.name;
+        setState({ ...state, selectedName });
+        dispatch(new ClearPods()).subscribe(() => dispatch(new FetchPods(selectedName)));
     }
 }
 

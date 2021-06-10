@@ -13,6 +13,7 @@ import { map, startWith, tap } from "rxjs/operators";
 })
 export class KubeControllerComponent implements OnInit {
   @Select(NamespaceState.namespaces) namespaces$!: Observable<Namespace[]>;
+  @Select(NamespaceState.selectedName) selectedName$!: Observable<string>;
 
   constructor(private store: Store) {
 

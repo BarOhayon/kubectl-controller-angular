@@ -16,36 +16,34 @@ async function runCommandLongCommand(cmd) {
 }
 
 async function getNamespaces() {
-    console.log(`getNamespaces`);
     let res = await runCommandOneTimeCommand('kubectl get namespaces');
     let lines = res.split('\n');
     lines.splice(0, 1);
     let namespaces = lines.filter(l => l !== '').map(l => l.split(/[ ]+/)).map((l, ind) => { return { name: l[0], status: l[1], age: l[2], _id: ind } });
-    console.log({ namespaces });
     return namespaces;
 }
 
-async function getPods(namespace) {
+async function getPods(namespace, extraData) {
     let res = await runCommandOneTimeCommand(`kubectl get pods -n ${namespace}`);
     let lines = res.split('\n');
     lines.splice(0, 1);
-    let podsData = [];
-    for (let line of lines) {
-        let data = line.split(' ').filter(l => l !== '');
-        if (!data.length) {
-            continue;
+    let podsData = lines.filter(l => l !== '').map(l => l.split(/[ ]+/)).map((line, index) => {
+        let [name, ready, status, restarts, age] = line;
+        if (extraData.removeNamePrefix) {
+            name = name.replace(extraData.removeNamePrefix, '');
         }
-        let displayName = data[0].split('-')[1].length < 3 ? data[0] : data[0].split('-')[0]
-
-        podsData.push({
-            name: data[0],
-            displayName: displayName.replace('dataplatform', ''),
-            ready: data[1],
-            status: data[2],
-            restarts: data[3],
-            age: data[4]
-        });
-    }
+        let podIndex = name.split('-')[1];
+        return {
+            _id: index.toString(),
+            name,
+            displayName: name.split('-')[0],
+            index: podIndex,
+            ready,
+            status,
+            restarts,
+            age
+        };
+    });
     return podsData;
 }
 
@@ -104,15 +102,3 @@ module.exports = {
     getConfig,
     getPort
 };
-
-// getNamespaces().then(console.log);
-// getPods('bar').then(r => {
-//     console.log(r);    
-// });
-// getLogs('bar', "projects-69f794d449-5vxf5").then(r => {
-//     console.log(r);    
-// });
-// portForwarding('bar', 'mongodb-667bf47db6-6rvwh', '27018', '27017').then(cp => {
-//     console.log(`port forwarding`);
-//     killCmdCall(cp);
-// });
