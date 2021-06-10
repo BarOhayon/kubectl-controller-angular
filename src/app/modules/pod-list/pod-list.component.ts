@@ -54,9 +54,6 @@ export class PodListComponent implements OnInit {
 
     }
     getRowClass(pod: Pod) {
-        // let classStr ='['
-        // classStr += this.getsStatusClass(pod.status) + ', ';
-        // classStr += ']'
         let classStr: any = {}
         classStr[this.getsStatusClass(pod.status)] = true
 
