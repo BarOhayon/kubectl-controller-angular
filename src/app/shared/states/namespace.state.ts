@@ -10,14 +10,14 @@ import { ClearPods, FetchPods } from '../actions/pod.action';
 
 export interface NamespaceStateModel {
     namespaces: Namespace[];
-    selectedName?: string
+    selectedNamespace?: Namespace
 }
 
 @State<NamespaceStateModel>({
     name: 'Namespace',
     defaults: {
         namespaces: [],
-        selectedName: undefined
+        selectedNamespace: undefined
     }
 })
 @Injectable()
@@ -36,9 +36,15 @@ export class NamespaceState {
         return state.namespaces;
     }
 
+
     @Selector()
     static selectedName(state: NamespaceStateModel) {
-        return state.selectedName;
+        return state.selectedNamespace?.name;
+    }
+
+    @Selector()
+    static selectedNamespace(state: NamespaceStateModel) {
+        return state.selectedNamespace;
     }
 
     @Action(FetchNamespaces)
@@ -48,7 +54,6 @@ export class NamespaceState {
             tap(dtos => {
                 let namespaces = dtos.map(NamespaceState.deserialize);
                 setState({ ...state, namespaces })
-
             })
         )
     }
@@ -56,8 +61,8 @@ export class NamespaceState {
     @Action(SetSelectedNamespace)
     setSelectedNamespace({ getState, setState, dispatch }: StateContext<NamespaceStateModel>, action: SetSelectedNamespace): void {
         let state = getState();
-        let selectedName = action.selectedNamespace.name;
-        setState({ ...state, selectedName });
+        let selectedName = action.selectedNamespace;
+        setState({ ...state, selectedNamespace: selectedName });
         dispatch(new ClearPods()).subscribe(() => dispatch(new FetchPods(selectedName)));
     }
 }

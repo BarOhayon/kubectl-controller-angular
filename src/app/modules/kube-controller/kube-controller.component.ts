@@ -20,8 +20,6 @@ export class KubeControllerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    // debugger
   }
 
 }

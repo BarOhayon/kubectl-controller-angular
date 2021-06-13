@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { JsonConvert } from 'json2typescript';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { ClearPods, FetchPods } from '../actions/pod.action';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { PodListService } from 'src/app/modules/pod-list/pod-list.service';
+import { ClearPods, FetchPods, SetSelectedPod } from '../actions/pod.action';
 import { KubectlService } from '../api/kubectl.service';
 import { Pod, PodDTO } from '../models/pod';
 
 export interface PodStateModel {
     pods: Pod[];
-    selectedId?: string
+    selectedPod?: Pod
 }
 
 @State<PodStateModel>({
     name: 'Pod',
     defaults: {
         pods: [],
-        selectedId: undefined,
+        selectedPod: undefined,
     }
 })
 @Injectable()
@@ -29,7 +30,7 @@ export class PodState {
     }
 
 
-    constructor(private KubectlService: KubectlService) { }
+    constructor(private KubectlService: KubectlService, private podlistService: PodListService) { }
 
     private sortPods(pods: Pod[]) {
         let sorted = []
@@ -47,19 +48,24 @@ export class PodState {
     }
 
     @Selector()
-    static selectedId(state: PodStateModel) {
-        return state.selectedId;
+    static selectedPod(state: PodStateModel) {
+        return state.selectedPod;
     }
 
     @Action(FetchPods)
     fetchPods({ getState, setState }: StateContext<PodStateModel>, action: FetchPods): Observable<any> {
         let state = getState();
-        return this.KubectlService.getPods(action.namespaceName).pipe(
+        return this.KubectlService.getPods(action.selectedNamespace.name).pipe(
+            catchError((err) => {
+                console.log('error caught in service')
+                console.error(err);
+                this.podlistService.setWatchPods(false);
+                setState({ ...state, pods: [], selectedPod: undefined })
+                return throwError(err);    //Rethrow it back to component
+            }),
             tap(dtos => {
                 let pods = dtos.map(PodState.deserialize);
-
-                let selectedId = pods.length ? state.selectedId || '0' : undefined;
-                setState({ ...state, pods: this.sortPods(pods), selectedId })
+                setState({ ...state, pods: this.sortPods(pods) })
             })
         )
     }
@@ -68,6 +74,14 @@ export class PodState {
     clearPods({ getState, setState }: StateContext<PodStateModel>, action: FetchPods): void {
         let state = getState();
         setState({ ...state, pods: [] })
+    }
+
+
+    @Action(SetSelectedPod)
+    setSelectedPod({ getState, setState }: StateContext<PodStateModel>, action: SetSelectedPod): void {
+        let state = getState();
+        let selectedPod = action.selectedPod;
+        setState({ ...state, selectedPod });
     }
 
 }

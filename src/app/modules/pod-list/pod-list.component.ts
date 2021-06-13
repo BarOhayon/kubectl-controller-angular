@@ -14,6 +14,7 @@ import { PodListService } from './pod-list.service';
 })
 export class PodListComponent implements OnInit {
     @Select(PodState.pods) pods$!: Observable<Pod[]>
+    @Select(PodState.selectedPod) selectedPod$!: Observable<Pod>
 
     constructor(private store: Store, public podListService: PodListService) { }
 
@@ -26,9 +27,11 @@ export class PodListComponent implements OnInit {
 
     private getsStatusClass(status: string) {
         if (/.*error.*/.test(status.toLowerCase())) {
-            return 'table-danger'
+            status = 'Error'
         }
         switch (status) {
+            case 'Error':
+                return 'table-danger'
             case 'Running':
                 return 'table-success'
             case 'Evicted':
@@ -54,10 +57,19 @@ export class PodListComponent implements OnInit {
 
     }
     getRowClass(pod: Pod) {
-        let classStr: any = {}
-        classStr[this.getsStatusClass(pod.status)] = true
+        return this.selectedPod$.pipe(
+            map(selectedPod => {
+                let classStr: any = {}
+                if (selectedPod && pod.name === selectedPod.name) {
+                    classStr['table-primary'] = true
+                } else {
+                    classStr[this.getsStatusClass(pod.status)] = true
 
-        return classStr
+                }
+                return classStr
+            })
+        )
+
     }
 
     ngOnInit(): void {

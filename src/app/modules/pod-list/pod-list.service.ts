@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { FetchPods } from 'src/app/shared/actions/pod.action';
+import { Namespace } from 'src/app/shared/models';
 import { NamespaceState } from 'src/app/shared/states/namespace.state';
 
 @Injectable({
@@ -9,33 +10,37 @@ import { NamespaceState } from 'src/app/shared/states/namespace.state';
 })
 export class PodListService {
 
-  @Select(NamespaceState.selectedName) selectedName$!: Observable<string>;
+  @Select(NamespaceState.selectedNamespace) selectedNamespace$!: Observable<Namespace>;
 
   constructor(private store: Store) {
-    this.selectedName$.subscribe((nv) => {
+    this.selectedNamespace$.subscribe((nv) => {
       this.ns = nv;
-      this._bool = false;
+      this._watchPods = false;
+      console.log('selectedNamespace$.subscribe');
+
       this.updateOnSelection();
     })
   }
-  get bool() { return this._bool }
+  get watchPods() { return this._watchPods }
 
-  private _bool: boolean = false;
-  private ns!: string;
+  private _watchPods: boolean = false;
+  private ns!: Namespace;
 
   private interval: any;
 
   updateOnSelection() {
-    if (this._bool) {
-      this.interval = setInterval(() => this.store.dispatch(new FetchPods(this.ns)), 1000)
+    if (this._watchPods) {
+      this.interval = setInterval(() => {
+        this.store.dispatch(new FetchPods(this.ns))
+      }, 1000)
     } else {
       clearInterval(this.interval);
     }
 
   }
 
-  setSelected(newValue: boolean) {
-    this._bool = newValue;
+  setWatchPods(newValue: boolean) {
+    this._watchPods = newValue;
     this.updateOnSelection();
   }
 }

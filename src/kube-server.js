@@ -16,10 +16,14 @@ app.get('/pods', async (req, res) => {
     let ns = req.query.namespaceName;
     let extradata = {};
     extradata.removeNamePrefix = req.query.removeNamePrefix;
-    debugger
-    let pods = await kubectlService.getPods(ns, extradata);
-    res.json(pods);
-    res.end();
+    try {
+        let pods = await kubectlService.getPods(ns, extradata);
+        res.json(pods);
+        res.end();
+    } catch (error) {
+        console.error(error);
+        res.send(error.message, 500)
+    }
 });
 
 app.get('/logs', async (req, res) => {
@@ -39,17 +43,18 @@ app.get('/config', async (req, res) => {
 });
 
 app.get('/connectToMongo', async (req, res) => {
-    let ns = req.query.namespace;
+    let ns = req.query.namespaceName;
     let pods = await kubectlService.getPods(ns);
     let mongoPod = pods.find(p => p.name.startsWith('mongo'));
     let cp = await kubectlService.portForwarding(ns, mongoPod.name, '27018', '27017');
+    console.log('connectToMongo', { pid: cp.pid });
     res.json({ status: 'connected', pid: cp.pid });
     res.end();
 });
 
 app.get('/disconnectFromMongo', async (req, res) => {
     let pid = req.query.pid;
-
+    console.log('disconnectFromMongo', { pid });
     await kubectlService.killCmdCall(pid);
     res.json({ status: 'disconnected' });
     res.end();
@@ -67,7 +72,7 @@ app.get('/openPortForwarding', async (req, res) => {
 app.get('/closePortForwarding', async (req, res) => {
     let pid = req.query.pid;
 
-    await kubectlService.killCmdCall(pid);
+    await kubectlService.killCmdCall(Number(pid));
     res.json({ status: 'disconnected' });
     res.end();
 });

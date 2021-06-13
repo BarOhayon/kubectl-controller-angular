@@ -1,9 +1,10 @@
+import { Namespace } from "../models";
 import { Pod } from "../models/pod";
 
 export class FetchPods {
     static readonly type = '[pod] Fetch';
 
-    constructor(public namespaceName: string) { }
+    constructor(public selectedNamespace: Namespace) { }
 }
 
 export class SetSelectedPod {

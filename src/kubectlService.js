@@ -6,7 +6,10 @@ const exec = util.promisify(require('child_process').exec);
 var spawn = require('child_process').spawn;
 
 async function runCommandOneTimeCommand(cmd) {
-    const { stdout } = await exec(cmd, { maxBuffer: 1024 * 1000 });
+    const { stdout, stderr } = await exec(cmd, { maxBuffer: 1024 * 1000, });
+    if (stderr) {
+        throw new Error(stderr);
+    }
     return stdout;
 }
 
@@ -24,27 +27,34 @@ async function getNamespaces() {
 }
 
 async function getPods(namespace, extraData) {
-    let res = await runCommandOneTimeCommand(`kubectl get pods -n ${namespace}`);
-    let lines = res.split('\n');
-    lines.splice(0, 1);
-    let podsData = lines.filter(l => l !== '').map(l => l.split(/[ ]+/)).map((line, index) => {
-        let [name, ready, status, restarts, age] = line;
-        if (extraData.removeNamePrefix) {
-            name = name.replace(extraData.removeNamePrefix, '');
-        }
-        let podIndex = name.split('-')[1];
-        return {
-            _id: index.toString(),
-            name,
-            displayName: name.split('-')[0],
-            index: podIndex,
-            ready,
-            status,
-            restarts,
-            age
-        };
-    });
-    return podsData;
+    try {
+
+        let res = await runCommandOneTimeCommand(`kubectl get pods -n ${namespace}`);
+        let lines = res.split('\n');
+        lines.splice(0, 1);
+        let podsData = lines.filter(l => l !== '').map(l => l.split(/[ ]+/)).map((line, index) => {
+            let [name, ready, status, restarts, age] = line;
+            if (extraData && extraData.removeNamePrefix) {
+                name = name.replace(extraData.removeNamePrefix, '');
+            }
+            let podIndex = name.split('-')[1];
+            return {
+                _id: index.toString(),
+                name,
+                displayName: name.split('-')[0],
+                index: podIndex,
+                ready,
+                status,
+                restarts,
+                age
+            };
+        });
+        return podsData;
+    } catch (error) {
+        // console.error('getPods', { msg: error.message });
+        throw error;
+    }
+
 }
 
 async function getLogs(namespace, pod) {
@@ -72,9 +82,16 @@ async function getConfig(namespace, pod) {
         await killCmdCall(handler.pid);
     }
 }
+var portForwardPidMap = {};
 
 async function portForwarding(namespace, pod, localPort, podPort) {
+    let id = `${namespace}_${pod}`;
+    if (portForwardPidMap[id]) {
+        killCmdCall(portForwardPidMap[id]);
+        portForwardPidMap[id] = undefined;
+    };
     let res = await runCommandLongCommand(`kubectl port-forward ${pod} --namespace ${namespace} ${localPort}:${podPort}`);
+    portForwardPidMap[id] = res.pid;
     return res;
 }
 
@@ -85,12 +102,17 @@ async function getPort(namespace, pod) {
         return port
     }
     catch (err) {
-        console.log(err);
+        console.error(err);
     }
 }
 
 async function killCmdCall(pid) {
     spawn("taskkill", ["/pid", pid, '/f', '/t']);
+    for (let key in portForwardPidMap) {
+        if (portForwardPidMap[key] === Number(pid)) {
+            portForwardPidMap[key] = undefined
+        }
+    }
 }
 
 module.exports = {

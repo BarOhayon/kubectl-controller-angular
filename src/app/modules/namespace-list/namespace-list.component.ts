@@ -38,7 +38,6 @@ export class NamespaceListComponent implements OnInit {
 
   setSelected(namespace: Namespace) {
     this.store.dispatch(new SetSelectedNamespace(namespace))
-
   }
 
   ngOnInit(): void {

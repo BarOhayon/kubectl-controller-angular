@@ -1,8 +1,17 @@
 <div>
     <h1>Namespaces</h1>
-    <input class=" form-check-input" type="checkbox" id="flexCheckDefault" [ngModel]="namespaceListService.bool"
-        (ngModelChange)="namespaceListService.setSelected($event)">
-    <label class="form-check-label" for="flexCheckDefault">Auto refresh</label>
+    <div>
+        <input class="form-check-input" type="checkbox" id="setWatchNamespace"
+            [ngModel]="namespaceListService.watchNamespaces"
+            (ngModelChange)="namespaceListService.setWatchNamespace($event)">
+        <label class="form-check-label" for="setWatchNamespace">Auto refresh</label>
+    </div>
+    <div>
+        <input class="form-check-input" type="checkbox" id="setConnectToMongo"
+            [ngModel]="namespaceListService.connectToMongo" [disabled]="(selectedName$ | async) === undefined"
+            (ngModelChange)="namespaceListService.setConnectToMongo($event)">
+        <label class="form-check-label" for="setConnectToMongo">Connect to mongo</label>
+    </div>
     <table class="table table-hover bs-component">
         <thead>
             <th>name</th>
@@ -11,8 +20,8 @@
             <th></th>
         </thead>
         <tbody>
-            <tr scope="row" *ngFor="let namespace of (namespaces$ | async);let i = index;"
-                [ngClass]="[getRowClass(namespace) | async]" (click)='setSelected(namespace)'>
+            <tr scope="row" *ngFor="let namespace of (namespaces$ | async)" [ngClass]="[getRowClass(namespace) | async]"
+                (click)='setSelected(namespace)'>
                 <td>{{namespace.name}}</td>
                 <td>{{namespace.status}}</td>
                 <td>{{namespace.age}}</td>
