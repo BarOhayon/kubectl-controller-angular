@@ -27,8 +27,8 @@ app.get('/pods', async (req, res) => {
 });
 
 app.get('/logs', async (req, res) => {
-    let ns = req.query.namespace;
-    let pod = req.query.pod;
+    let ns = req.query.namespaceName;
+    let pod = req.query.podName;
     let logs = await kubectlService.getLogs(ns, pod);
     res.json(logs);
     res.end();

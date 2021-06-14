@@ -4,7 +4,7 @@ import { Pod } from "../models/pod";
 export class FetchPods {
     static readonly type = '[pod] Fetch';
 
-    constructor(public selectedNamespace: Namespace) { }
+    constructor() { }
 }
 
 export class SetSelectedPod {

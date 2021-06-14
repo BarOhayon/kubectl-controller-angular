@@ -61,9 +61,9 @@ export class NamespaceState {
     @Action(SetSelectedNamespace)
     setSelectedNamespace({ getState, setState, dispatch }: StateContext<NamespaceStateModel>, action: SetSelectedNamespace): void {
         let state = getState();
-        let selectedName = action.selectedNamespace;
-        setState({ ...state, selectedNamespace: selectedName });
-        dispatch(new ClearPods()).subscribe(() => dispatch(new FetchPods(selectedName)));
+        let selectedNs = action.selectedNamespace;
+        setState({ ...state, selectedNamespace: selectedNs });
+        dispatch(new ClearPods()).subscribe(() => dispatch(new FetchPods()));
     }
 }
 

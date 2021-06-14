@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Action, Selector, State, StateContext } from '@ngxs/store';
+import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
 import { JsonConvert } from 'json2typescript';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PodListService } from 'src/app/modules/pod-list/pod-list.service';
+import { ClearLogs, FetchLogs } from '../actions/log.action';
 import { ClearPods, FetchPods, SetSelectedPod } from '../actions/pod.action';
 import { KubectlService } from '../api/kubectl.service';
 import { Pod, PodDTO } from '../models/pod';
+import { NamespaceState } from './namespace.state';
 
 export interface PodStateModel {
     pods: Pod[];
@@ -30,7 +32,7 @@ export class PodState {
     }
 
 
-    constructor(private KubectlService: KubectlService, private podlistService: PodListService) { }
+    constructor(private KubectlService: KubectlService, private podlistService: PodListService, private store: Store) { }
 
     private sortPods(pods: Pod[]) {
         let sorted = []
@@ -55,7 +57,11 @@ export class PodState {
     @Action(FetchPods)
     fetchPods({ getState, setState }: StateContext<PodStateModel>, action: FetchPods): Observable<any> {
         let state = getState();
-        return this.KubectlService.getPods(action.selectedNamespace.name).pipe(
+        let nsName = this.store.selectSnapshot(NamespaceState.selectedNamespace)?.name;
+        if (!nsName) {
+            throwError('no nsName')
+        }
+        return this.KubectlService.getPods(nsName!).pipe(
             catchError((err) => {
                 console.log('error caught in service')
                 console.error(err);
@@ -64,8 +70,15 @@ export class PodState {
                 return throwError(err);    //Rethrow it back to component
             }),
             tap(dtos => {
-                let pods = dtos.map(PodState.deserialize);
-                setState({ ...state, pods: this.sortPods(pods) })
+                let selected = this.store.selectSnapshot(NamespaceState.selectedNamespace)?.name
+                if (selected === nsName) {
+                    let pods = dtos.map(PodState.deserialize);
+                    setState({ ...state, pods: this.sortPods(pods) })
+                } else {
+                    console.log('ERROR_NS');
+
+                }
+
             })
         )
     }
@@ -78,10 +91,11 @@ export class PodState {
 
 
     @Action(SetSelectedPod)
-    setSelectedPod({ getState, setState }: StateContext<PodStateModel>, action: SetSelectedPod): void {
+    setSelectedPod({ getState, setState, dispatch }: StateContext<PodStateModel>, action: SetSelectedPod): void {
         let state = getState();
         let selectedPod = action.selectedPod;
-        setState({ ...state, selectedPod });
+        setState({ ...state, selectedPod })
+        dispatch(new ClearLogs).subscribe(() => dispatch(new FetchLogs()))
     }
 
 }

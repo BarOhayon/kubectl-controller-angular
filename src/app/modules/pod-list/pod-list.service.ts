@@ -31,7 +31,7 @@ export class PodListService {
   updateOnSelection() {
     if (this._watchPods) {
       this.interval = setInterval(() => {
-        this.store.dispatch(new FetchPods(this.ns))
+        this.store.dispatch(new FetchPods())
       }, 1000)
     } else {
       clearInterval(this.interval);

@@ -1,0 +1,18 @@
+<H1>logs</H1>
+<!-- <input class=" form-check-input" type="checkbox" id="flexCheckDefault" [ngModel]="podListService.watchPods"
+    (ngModelChange)="podListService.setWatchPods($event)">
+    <label class="form-check-label" for="flexCheckDefault">Auto refresh</label> -->
+<div>
+    <table class="table table-hover bs-component">
+        <thead>
+            <th>log</th>
+        </thead>
+        <tbody>
+
+            <tr scope=" row" *ngFor="let log of (logs$ |async);let i = index;" class="table-primary">
+                <!-- [ngClass]="getRowClass(pod) | async " -->
+                <td>{{log}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SetSelectedPod } from 'src/app/shared/actions/pod.action';
 import { Pod } from 'src/app/shared/models/pod';
+import { NamespaceState } from 'src/app/shared/states/namespace.state';
 import { PodState } from 'src/app/shared/states/pod.state';
 import { PodListService } from './pod-list.service';
 
@@ -15,6 +16,7 @@ import { PodListService } from './pod-list.service';
 export class PodListComponent implements OnInit {
     @Select(PodState.pods) pods$!: Observable<Pod[]>
     @Select(PodState.selectedPod) selectedPod$!: Observable<Pod>
+    @Select(NamespaceState.selectedName) selectedNsName$!: Observable<string>
 
     constructor(private store: Store, public podListService: PodListService) { }
 

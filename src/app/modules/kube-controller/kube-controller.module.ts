@@ -9,17 +9,22 @@ import { PodState } from 'src/app/shared/states/pod.state';
 import { FormsModule } from '@angular/forms';
 import { PodListService } from '../pod-list/pod-list.service';
 import { NamespaceListService } from '../namespace-list/namespace-list.service';
+import { LogsListComponent } from '../logs-list/logs-list.component';
+import { LogState } from 'src/app/shared/states/log.state';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
 
 @NgModule({
   declarations: [
     KubeControllerComponent,
     NamespaceListComponent,
     PodListComponent,
+    LogsListComponent,
   ],
   imports: [
-    NgxsModule.forRoot([NamespaceState, PodState], { developmentMode: true }),
+    NgxsModule.forRoot([NamespaceState, PodState, LogState], { developmentMode: true }),
     CommonModule,
-    FormsModule
+    FormsModule,
+    NgxJsonViewerModule,
   ],
   exports: [
     KubeControllerComponent,

@@ -1,9 +1,7 @@
 <H1>Pods</H1>
-<div>
-    <input class=" form-check-input" type="checkbox" id="flexCheckDefault" [ngModel]="podListService.watchPods"
-        (ngModelChange)="podListService.setWatchPods($event)">
-    <label class="form-check-label" for="flexCheckDefault">Auto refresh</label>
-</div>
+<input class=" form-check-input" type="checkbox" id="flexCheckDefault" [ngModel]="podListService.watchPods"
+    (ngModelChange)="podListService.setWatchPods($event)">
+<label class="form-check-label" for="flexCheckDefault">Auto refresh</label>
 <div *ngIf="(hasPods$ |async); else loading">
     <table class="table table-hover bs-component">
         <thead>
@@ -27,4 +25,4 @@
             </tr>
     </table>
 </div>
-<ng-template #loading></ng-template>
+<ng-template #loading class="loader"> loader</ng-template>
