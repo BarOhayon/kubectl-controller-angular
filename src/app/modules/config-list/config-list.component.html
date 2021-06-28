@@ -1,0 +1,3 @@
+<H1>Config</H1>
+<ngx-json-viewer *ngIf="(config$ |async); else loading" [json]="(config$ | async)" [expanded]="false"></ngx-json-viewer>
+<ng-template #loading></ng-template>

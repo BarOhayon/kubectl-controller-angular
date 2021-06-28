@@ -12,6 +12,8 @@ import { NamespaceListService } from '../namespace-list/namespace-list.service';
 import { LogsListComponent } from '../logs-list/logs-list.component';
 import { LogState } from 'src/app/shared/states/log.state';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
+import { ConfigListComponent } from '../config-list/config-list.component';
+import { ConfigState } from 'src/app/shared/states/config.state';
 
 @NgModule({
   declarations: [
@@ -19,9 +21,10 @@ import { NgxJsonViewerModule } from 'ngx-json-viewer';
     NamespaceListComponent,
     PodListComponent,
     LogsListComponent,
+    ConfigListComponent,
   ],
   imports: [
-    NgxsModule.forRoot([NamespaceState, PodState, LogState], { developmentMode: true }),
+    NgxsModule.forRoot([NamespaceState, PodState, LogState, ConfigState], { developmentMode: true }),
     CommonModule,
     FormsModule,
     NgxJsonViewerModule,

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { FetchConfig } from 'src/app/shared/actions/config.action';
 import { SetSelectedPod } from 'src/app/shared/actions/pod.action';
 import { Pod } from 'src/app/shared/models/pod';
 import { NamespaceState } from 'src/app/shared/states/namespace.state';
@@ -22,6 +23,12 @@ export class PodListComponent implements OnInit {
 
     setSelected(pod: Pod) {
         this.store.dispatch(new SetSelectedPod(pod))
+    }
+
+    getConfig() {
+        console.log('oe');
+
+        this.store.dispatch(new FetchConfig())
     }
 
     hasPods$!: Observable<boolean>;
