@@ -1,10 +1,10 @@
 export class FetchLogs {
-    static readonly type = '[log] Fetch';
+    static readonly type = '[Log] Fetch';
 
     constructor() { }
 }
 export class ClearLogs {
-    static readonly type = '[log] Clear';
+    static readonly type = '[Log] Clear';
 
     constructor() { }
 }

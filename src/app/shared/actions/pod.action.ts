@@ -2,7 +2,7 @@ import { Namespace } from "../models";
 import { Pod } from "../models/pod";
 
 export class FetchPods {
-    static readonly type = '[pod] Fetch';
+    static readonly type = '[Pod] Fetch';
 
     constructor() { }
 }

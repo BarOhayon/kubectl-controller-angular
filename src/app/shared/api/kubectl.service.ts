@@ -18,6 +18,7 @@ export class KubectlService {
 
   getPods(namespaceName: string): Observable<PodDTO[]> { return this.http.get<PodDTO[]>(`${KubectlService.baseUrl}/pods?namespaceName=${namespaceName}&removeNamePrefix=dataplatform`); }
 
-  getLogs(namespaceName: string, podName: string): Observable<any> { return this.http.get<any>(`${KubectlService.baseUrl}/logs?namespaceName=${namespaceName}&podName=${podName}`); }
+  getLogs(namespaceName: string, podName: string): Observable<string[]> { return this.http.get<any>(`${KubectlService.baseUrl}/logs?namespaceName=${namespaceName}&podName=${podName}`); }
+  getConfig(namespaceName: string, podName: string): Observable<any> { return this.http.get<any>(`${KubectlService.baseUrl}/config?namespaceName=${namespaceName}&podName=${podName}`); }
 
 }

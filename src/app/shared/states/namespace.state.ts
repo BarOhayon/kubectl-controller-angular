@@ -7,6 +7,8 @@ import { Injectable } from '@angular/core';
 import { JsonConvert } from 'json2typescript';
 import { Observable } from 'rxjs';
 import { ClearPods, FetchPods } from '../actions/pod.action';
+import { ClearLogs } from '../actions/log.action';
+import { ClearConfig } from '../actions/config.action';
 
 export interface NamespaceStateModel {
     namespaces: Namespace[];
@@ -63,7 +65,7 @@ export class NamespaceState {
         let state = getState();
         let selectedNs = action.selectedNamespace;
         setState({ ...state, selectedNamespace: selectedNs });
-        dispatch(new ClearPods()).subscribe(() => dispatch(new FetchPods()));
+        dispatch([new ClearPods(), new ClearLogs(), new ClearConfig()]).subscribe(() => dispatch(new FetchPods()));
     }
 }
 

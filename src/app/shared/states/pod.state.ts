@@ -4,6 +4,7 @@ import { JsonConvert } from 'json2typescript';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { PodListService } from 'src/app/modules/pod-list/pod-list.service';
+import { ClearConfig } from '../actions/config.action';
 import { ClearLogs, FetchLogs } from '../actions/log.action';
 import { ClearPods, FetchPods, SetSelectedPod } from '../actions/pod.action';
 import { KubectlService } from '../api/kubectl.service';
@@ -67,7 +68,7 @@ export class PodState {
                 console.error(err);
                 this.podlistService.setWatchPods(false);
                 setState({ ...state, pods: [], selectedPod: undefined })
-                return throwError(err);    //Rethrow it back to component
+                return throwError(err);
             }),
             tap(dtos => {
                 let selected = this.store.selectSnapshot(NamespaceState.selectedNamespace)?.name
@@ -95,7 +96,12 @@ export class PodState {
         let state = getState();
         let selectedPod = action.selectedPod;
         setState({ ...state, selectedPod })
-        dispatch(new ClearLogs).subscribe(() => dispatch(new FetchLogs()))
+        dispatch([new ClearLogs(), new ClearConfig()]).subscribe(() => {
+            console.log('DONE');
+            dispatch(new FetchLogs())
+        }, error => { console.log({ error }); }
+
+        )
     }
 
 }

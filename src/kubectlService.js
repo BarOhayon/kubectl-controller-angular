@@ -6,7 +6,7 @@ const exec = util.promisify(require('child_process').exec);
 var spawn = require('child_process').spawn;
 
 async function runCommandOneTimeCommand(cmd) {
-    const { stdout, stderr } = await exec(cmd, { maxBuffer: 1024 * 1000, });
+    const { stdout, stderr } = await exec(cmd, { maxBuffer: 1024 * 5000, });
     if (stderr) {
         throw new Error(stderr);
     }
@@ -30,18 +30,21 @@ async function getPods(namespace, extraData) {
     try {
 
         let res = await runCommandOneTimeCommand(`kubectl get pods -n ${namespace}`);
+        let res2 = JSON.parse(await runCommandOneTimeCommand(`kubectl get pods -n ${namespace} -o json`));
+
         let lines = res.split('\n');
         lines.splice(0, 1);
         let podsData = lines.filter(l => l !== '').map(l => l.split(/[ ]+/)).map((line, index) => {
             let [name, ready, status, restarts, age] = line;
+            let displayName = name.split('-').slice(0, -1).join('-');
             if (extraData && extraData.removeNamePrefix) {
-                name = name.replace(extraData.removeNamePrefix, '');
+                displayName = displayName.replace(extraData.removeNamePrefix, '');
             }
-            let podIndex = name.split('-')[1];
+            let podIndex = name.split('-').pop();
             return {
                 _id: index.toString(),
                 name,
-                displayName: name.split('-')[0],
+                displayName,
                 index: podIndex,
                 ready,
                 status,
@@ -64,22 +67,20 @@ async function getLogs(namespace, pod) {
 }
 
 async function getConfig(namespace, pod) {
-    let podPort = await getPort(namespace, pod);
-    let handler = await portForwarding(namespace, pod, 3001, podPort);
     try {
-
+        let podPort = await getPort(namespace, pod);
+        let handler = await portForwarding(namespace, pod, 3001, podPort);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         let result = await axios({
             method: 'get',
             url: `http://localhost:3001/info/config`,
         });
+        await killCmdCall(handler.pid);
         return result.data;
     }
     catch (err) {
         console.error(err);
         return undefined;
-    }
-    finally {
-        await killCmdCall(handler.pid);
     }
 }
 var portForwardPidMap = {};

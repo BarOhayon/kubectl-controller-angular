@@ -1,37 +1,35 @@
 import { Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
-import { JsonConvert } from 'json2typescript';
 import { Observable, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ClearLogs, FetchLogs } from '../actions/log.action';
+import { ClearConfig, FetchConfig } from '../actions/config.action';
 import { KubectlService } from '../api/kubectl.service';
 import { NamespaceState } from './namespace.state';
 import { PodState } from './pod.state';
 
-export interface LogStateModel {
-    logs: string[];
+export interface ConfigStateModel {
+    config?: any;
 }
 
-@State<LogStateModel>({
-    name: 'Log',
+@State<ConfigStateModel>({
+    name: 'Config',
     defaults: {
-        logs: [],
+        config: undefined,
     }
 })
 @Injectable()
-export class LogState {
-    private static jsonConvert = new JsonConvert();
+export class ConfigState {
 
     constructor(private kubectlService: KubectlService, private store: Store) { }
 
     @Selector()
-    static logs(state: LogStateModel) {
-        return state.logs;
+    static config(state: ConfigStateModel) {
+        return state.config;
     }
 
-    @Action(FetchLogs, { cancelUncompleted: true })
-    fetchLogs({ getState, setState }: StateContext<LogStateModel>, action: FetchLogs): Observable<any> {
-        console.log('fetchLogs');
+    @Action(FetchConfig)
+    fetchConfig({ getState, setState }: StateContext<ConfigStateModel>, action: FetchConfig): Observable<any> {
+        console.log('fetchConfig');
         let state = getState();
         let selectedNamespaceName = this.store.selectSnapshot(NamespaceState.selectedNamespace)?.name
         let selectedPodName = this.store.selectSnapshot(PodState.selectedPod)?.name
@@ -43,21 +41,18 @@ export class LogState {
         }
         console.log({ selectedNamespaceName, selectedPodName });
 
-        return this.kubectlService.getLogs(selectedNamespaceName!, selectedPodName!).pipe(
+        return this.kubectlService.getConfig(selectedNamespaceName!, selectedPodName!).pipe(
             tap(dtos => {
-                console.log('getLogs');
-
-                let logs = dtos;
-                setState({ ...state, logs })
+                setState({ ...state, config: dtos })
             })
         )
     }
-    @Action(ClearLogs)
-    clearLogs({ getState, setState }: StateContext<LogStateModel>, action: FetchLogs): void {
+
+    @Action(ClearConfig)
+    clearConfig({ getState, setState }: StateContext<ConfigStateModel>, action: ClearConfig) {
         let state = getState();
-        setState({ ...state, logs: [] })
+        setState({ config: undefined })
     }
 
 }
-
 
