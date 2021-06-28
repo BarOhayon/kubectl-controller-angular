@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { FetchNamespaces } from 'src/app/shared/actions/namespace.action';
 import { KubectlService } from 'src/app/shared/api/kubectl.service';
-import { Namespace } from 'src/app/shared/models';
 import { NamespaceState } from 'src/app/shared/states/namespace.state';
 
 @Injectable({
